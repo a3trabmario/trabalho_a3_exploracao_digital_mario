@@ -1,11 +1,38 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
-from app.core.config import settings
+from .anonymize import anonymize
+from .config import settings
+from .gemini import GeminiError, explain_exam
+
+app = FastAPI(title="LêExame API", docs_url=None, redoc_url=None)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["POST", "GET"],
+    allow_headers=["Content-Type"],
+)
 
 
-app = FastAPI(title=settings.app_name, version="0.1.0")
+class AnalyzeRequest(BaseModel):
+    # Texto já anonimizado no navegador; nunca recebemos arquivo nem nome.
+    text: str = Field(min_length=20, max_length=40000)
 
 
-@app.get("/health")
-def health_check() -> dict[str, str]:
+@app.get("/api/health")
+def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/api/analyze")
+async def analyze(body: AnalyzeRequest) -> dict:
+    clean = anonymize(body.text)  # segunda camada; nada é gravado em disco ou banco
+    try:
+        result = await explain_exam(clean)
+    except GeminiError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from None
+    if not result.get("items"):
+        raise HTTPException(status_code=422, detail="Não encontramos resultados de exame no arquivo.")
+    return result
