@@ -10,7 +10,8 @@ app = FastAPI(title="LêExame API", docs_url=None, redoc_url=None)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in settings.frontend_origin.split(",")],
+    allow_origin_regex=settings.frontend_origin_regex or None,
     allow_methods=["POST", "GET"],
     allow_headers=["Content-Type"],
 )
@@ -32,7 +33,7 @@ async def analyze(body: AnalyzeRequest) -> dict:
     try:
         result = await explain_exam(clean)
     except GeminiError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from None
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from None
     if not result.get("items"):
         raise HTTPException(status_code=422, detail="Não encontramos resultados de exame no arquivo.")
     return result
