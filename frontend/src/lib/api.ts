@@ -18,14 +18,18 @@ export interface Analysis {
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
 
-export async function analyze(anonymizedText: string): Promise<Analysis> {
+export async function analyze(
+  anonymizedText: string,
+  age: number,
+  gender: string,
+): Promise<Analysis> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 65_000);
   try {
     const resp = await fetch(`${API_BASE_URL}/api/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: anonymizedText }),
+      body: JSON.stringify({ text: anonymizedText, age, gender }),
       signal: controller.signal,
     });
     if (!resp.ok) {

@@ -1,23 +1,23 @@
 :root {
-  --primary: #7e638c;
-  --primary-dark: #60476d;
-  --accent: #d6496c;
+  --primary: #5b7c8d;
+  --primary-dark: #44749d;
+  --accent: #44749d;
   --sage: #7db8a2;
   --sage-dark: #28765d;
   --lime: #d6dd90;
-  --cream: #fffad3;
-  --ink: #33263a;
+  --cream: #74bf9d;
+  --ink: #45444e;
   --muted: #5d5361;
   --line: #d9ccd8;
   --surface: #ffffff;
-  --page: #fffcf4;
+  --page: #efefef;
   font-family:
-    "Avenir Next",
-    Avenir,
-    "Avenir Light",
+    "Roboto",
+    Roboto,
+    "Roboto",
     system-ui,
     -apple-system,
-    "Segoe UI",
+    "Montserrat",
     sans-serif;
   color: var(--ink);
   font-synthesis: none;
@@ -54,7 +54,7 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Roboto, "Roboto";
   line-height: 1.2;
 }
 
@@ -81,17 +81,19 @@ p {
 .topbar {
   display: flex;
   min-height: 4.5rem;
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem calc((100% - 68rem)/2);
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  width: 100%;
+  
 }
 
 .brand {
   color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Roboto, "Roboto";
   font-size: 1.45rem;
   font-weight: 700;
   text-decoration: none;
@@ -137,10 +139,7 @@ p {
   position: relative;
   overflow: hidden;
   padding: clamp(3.5rem, 8vw, 6rem) 1.25rem;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(214, 221, 144, 0.5), transparent 27rem),
-    radial-gradient(circle at 90% 15%, rgba(125, 184, 162, 0.28), transparent 24rem),
-    linear-gradient(180deg, var(--cream), var(--page));
+  background: var(--page);
   text-align: center;
 }
 
@@ -180,7 +179,7 @@ p {
 .chips li {
   padding: 0.45rem 0.85rem;
   border: 1px solid rgba(126, 99, 140, 0.25);
-  border-radius: 999px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.82);
   color: var(--ink);
   font-size: 0.9rem;
@@ -280,10 +279,7 @@ main {
 .analysis-page {
   min-height: calc(100vh - 4.5rem);
   padding: clamp(2.5rem, 6vw, 4.5rem) 1rem 5rem;
-  background:
-    radial-gradient(circle at 10% 5%, rgba(214, 221, 144, 0.35), transparent 22rem),
-    radial-gradient(circle at 92% 18%, rgba(125, 184, 162, 0.2), transparent 24rem),
-    var(--page);
+  background: var(--page);
 }
 
 .analysis-intro {
@@ -484,7 +480,7 @@ main {
   gap: 0.6rem;
   border: 2px dashed #90709f;
   border-radius: 1rem;
-  background: #fffcdf;
+  background: #e9faf6e2;
   cursor: pointer;
   text-align: center;
 }
@@ -506,8 +502,8 @@ main {
 
 .drop:hover,
 .drop.drag {
-  border-color: var(--primary-dark);
-  background: #f8f1cc;
+  border-color: #abece4;
+  background:var(--primary-dark);
 }
 
 .drop strong {
@@ -868,7 +864,11 @@ pre {
   overflow: auto;
   border-radius: 0.5rem;
   background: var(--cream);
-  font: 0.86rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font:
+    0.86rem/1.5 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
   white-space: pre-wrap;
 }
 
@@ -881,7 +881,7 @@ pre {
 
 footer {
   display: flex;
-  padding: 2rem 1rem;
+  padding: 1rem 1rem;
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
@@ -894,7 +894,7 @@ footer {
 
 footer strong {
   color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Montserrat, "Montserrat";
   font-size: 1.1rem;
 }
 
