@@ -59,7 +59,7 @@ def _models() -> list[str]:
     return list(dict.fromkeys(model.strip() for model in configured if model.strip()))
 
 
-async def explain_exam(text: str) -> dict:
+async def explain_exam(text: str, age: int, gender: str) -> dict:
     if not settings.gemini_api_key:
         raise GeminiError("Serviço de análise não configurado corretamente.")
 
@@ -77,7 +77,13 @@ async def explain_exam(text: str) -> dict:
             try:
                 response = await client.aio.models.generate_content(
                     model=model,
-                    contents=_PROMPT + text,
+                    contents=(
+                        f"{_PROMPT}\nContexto informado: idade {age} anos; "
+                        f"gênero/sexo considerado nas referências: {gender}.\n\n"
+                        "Use esse contexto com cautela, sem inferir características "
+                        "não informadas; priorize as referências explícitas do laudo.\n\n"
+                        f"{text}"
+                    ),
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                         response_schema=AnalysisResponse,

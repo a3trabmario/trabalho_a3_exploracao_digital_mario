@@ -26,6 +26,8 @@ export default function App() {
   const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [result, setResult] = useState<Analysis | null>(null);
@@ -97,7 +99,7 @@ export default function App() {
           ),
         12_000,
       );
-      setResult(await analyze(clean));
+      setResult(await analyze(clean, Number(age), gender));
       setStep(3);
     } catch (caught) {
       setError(
@@ -115,6 +117,8 @@ export default function App() {
     setStep(1);
     setFile(null);
     setName("");
+    setAge("");
+    setGender("");
     setResult(null);
     setError("");
     if (inputRef.current) inputRef.current.value = "";
@@ -164,6 +168,8 @@ export default function App() {
           step={step}
           file={file}
           name={name}
+          age={age}
+          gender={gender}
           busy={busy}
           error={error}
           result={result}
@@ -173,6 +179,8 @@ export default function App() {
           onPick={pick}
           onClearFile={clearFile}
           onSetName={setName}
+          onSetAge={setAge}
+          onSetGender={setGender}
           onSetStep={setStep}
           onSetDragging={setDragging}
           onRun={run}
@@ -181,9 +189,8 @@ export default function App() {
       )}
 
       <footer>
-        <strong>LêExame</strong>
-        <span>Explicação educativa com auxílio de inteligência artificial.</span>
-        <span>Anonimização no navegador · Sem armazenamento de dados</span>
+        <strong>LêExame</strong>Explicação didática com auxílio de inteligência
+        artificial. Seus dados são anonimizados no navegador.
       </footer>
     </>
   );
@@ -197,11 +204,12 @@ function LandingPage({
   return (
     <main id="main-content" tabIndex={-1}>
       <header className="hero">
-        <p className="eyebrow">Informação clara antes da sua consulta</p>
-        <h1>Seu exame, explicado de um jeito mais simples</h1>
+        <p className="eyebrow">ENTENDA SEUS EXAMES ANTES DA CONSULTA</p>
+        <h1>Traduza seu laudo e prepare-se para a consulta</h1>
         <p>
-          Entenda termos, siglas e valores do laudo com uma explicação
-          educativa, acolhedora e fácil de acompanhar.
+          Desvende termos, siglas e valores complexos em segundos. Tenha uma
+          explicação educativa e acolhedora para conversar com seu médico com
+          muito mais tranquilidade e segurança.
         </p>
         <ul className="chips">
           <li>✓ Linguagem simples</li>
@@ -215,7 +223,6 @@ function LandingPage({
         >
           Começar a entender meu exame
         </a>
-        <p className="hero-note">Envio gratuito para esta demonstração.</p>
       </header>
 
       <section className="how" id="como-funciona" aria-labelledby="how-title">
@@ -258,6 +265,8 @@ interface AnalysisPageProps {
   step: number;
   file: File | null;
   name: string;
+  age: string;
+  gender: string;
   busy: string;
   error: string;
   result: Analysis | null;
@@ -267,6 +276,8 @@ interface AnalysisPageProps {
   onPick: (file: File | undefined) => void;
   onClearFile: () => void;
   onSetName: (name: string) => void;
+  onSetAge: (age: string) => void;
+  onSetGender: (gender: string) => void;
   onSetStep: (step: number) => void;
   onSetDragging: (dragging: boolean) => void;
   onRun: () => Promise<void>;
@@ -277,6 +288,8 @@ function AnalysisPage({
   step,
   file,
   name,
+  age,
+  gender,
   busy,
   error,
   result,
@@ -286,6 +299,8 @@ function AnalysisPage({
   onPick,
   onClearFile,
   onSetName,
+  onSetAge,
+  onSetGender,
   onSetStep,
   onSetDragging,
   onRun,
@@ -326,7 +341,6 @@ function AnalysisPage({
   return (
     <main id="main-content" className="analysis-page" tabIndex={-1}>
       <header className="analysis-intro">
-        <p className="section-kicker">Análise educativa</p>
         <h1>Envie seu exame com segurança</h1>
         <p>O arquivo é processado no navegador e não fica armazenado.</p>
       </header>
@@ -336,7 +350,9 @@ function AnalysisPage({
         aria-labelledby="card-title"
       >
         <h2 id="card-title" className="card-title">
-          {step === 3 ? "Explicação do seu exame" : "Preparar exame para análise"}
+          {step === 3
+            ? "Explicação do seu exame"
+            : "Preparar exame para análise"}
         </h2>
         <div
           className="progress"
@@ -378,17 +394,17 @@ function AnalysisPage({
                 <details>
                   <summary>Entenda como tratamos seus dados</summary>
                   <p>
-                    Apenas o texto anonimizado segue para o backend, que
-                    reaplica a proteção e consulta o Gemini. A chave de acesso
-                    permanece no servidor.
+                    O texto anonimizado, a idade e a opção de gênero informadas
+                    seguem para o backend, que reaplica a proteção no texto e
+                    consulta o Gemini. A chave de acesso permanece no servidor.
                   </p>
                 </details>
               </div>
             </div>
 
             <div className="medical-notice" role="note">
-              <strong>Esta ferramenta é educativa.</strong> Ela não realiza
-              diagnósticos, não indica tratamentos e não substitui a avaliação
+              <strong>Esta é uma ferramenta é educativa!</strong> <br></br>
+              Não realizadiagnósticos, não indica tratamentos e não substitui a avaliação
               de um profissional de saúde.
             </div>
           </>
@@ -478,11 +494,13 @@ function AnalysisPage({
             }}
           >
             <h3 ref={panelHeadingRef} tabIndex={-1}>
-              Proteja seu nome antes da análise
+              Informe dados para contextualizar a análise
             </h3>
             <p className="muted" id="name-help">
-              Usamos o nome somente neste dispositivo para encontrá-lo e
-              removê-lo do laudo. Ele nunca é enviado.
+              O nome é usado apenas neste dispositivo para encontrá-lo e
+              removê-lo do laudo. Idade e gênero selecionado serão enviados
+              junto ao texto anonimizado para contextualizar as referências;
+              nenhum deles é armazenado.
             </p>
             <label htmlFor="name">Nome completo</label>
             <input
@@ -496,6 +514,39 @@ function AnalysisPage({
               aria-describedby="name-help"
               aria-invalid={name.length > 0 && name.trim().length < 3}
             />
+            <label htmlFor="age">Idade da pessoa (anos)</label>
+            <input
+              id="age"
+              type="number"
+              value={age}
+              onChange={(event) => onSetAge(event.target.value)}
+              min={0}
+              max={120}
+              step={1}
+              required
+              inputMode="numeric"
+              aria-describedby="demographic-help"
+            />
+            <label htmlFor="gender">Gênero a considerar nas referências</label>
+            <select
+              id="gender"
+              value={gender}
+              onChange={(event) => onSetGender(event.target.value)}
+              required
+              aria-describedby="demographic-help"
+            >
+              <option value="" disabled>
+                Selecione uma opção
+              </option>
+              <option value="feminino">Feminino</option>
+              <option value="masculino">Masculino</option>
+              <option value="outro">Outro / não sei</option>
+              <option value="nao_informar">Prefiro não informar</option>
+            </select>
+            <p className="muted" id="demographic-help">
+              A IA usará esses dados somente como contexto e não substituirá as
+              faixas de referência do próprio laudo.
+            </p>
             {error && (
               <p className="error" role="alert">
                 {error}
@@ -518,7 +569,15 @@ function AnalysisPage({
               </button>
               <button
                 className="btn primary"
-                disabled={!!busy || name.trim().length < 3}
+                disabled={
+                  !!busy ||
+                  name.trim().length < 3 ||
+                  age === "" ||
+                  Number(age) < 0 ||
+                  Number(age) > 120 ||
+                  !Number.isInteger(Number(age)) ||
+                  !gender
+                }
               >
                 {error ? "Tentar novamente" : "Explicar meu exame"}
               </button>
@@ -528,7 +587,10 @@ function AnalysisPage({
 
         {step === 3 && result && (
           <div className="panel result-panel">
-            <section className="result-overview" aria-labelledby="summary-title">
+            <section
+              className="result-overview"
+              aria-labelledby="summary-title"
+            >
               <p className="section-kicker">Resumo geral</p>
               <h3 id="summary-title" ref={panelHeadingRef} tabIndex={-1}>
                 O que o exame mostra
@@ -540,7 +602,10 @@ function AnalysisPage({
             </section>
 
             {!!result.questions_for_doctor?.length && (
-              <section className="questions-box" aria-labelledby="questions-title">
+              <section
+                className="questions-box"
+                aria-labelledby="questions-title"
+              >
                 <h3 id="questions-title">Perguntas para levar à consulta</h3>
                 <ul>
                   {result.questions_for_doctor.map((question, index) => (
@@ -556,7 +621,9 @@ function AnalysisPage({
                   <p className="section-kicker">Resultado detalhado</p>
                   <h3 id="detail-title">Entenda cada parte do exame</h3>
                 </div>
-                <p>As comparações usam a referência informada no próprio laudo.</p>
+                <p>
+                  As comparações usam a referência informada no próprio laudo.
+                </p>
               </div>
 
               <div className="result-tools">

@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 from .anonymize import anonymize
@@ -18,8 +20,10 @@ app.add_middleware(
 
 
 class AnalyzeRequest(BaseModel):
-    # Texto já anonimizado no navegador; nunca recebemos arquivo nem nome.
+    # Texto anonimizado no navegador; nunca recebemos arquivo nem nome.
     text: str = Field(min_length=20, max_length=40000)
+    age: int = Field(ge=0, le=120)
+    gender: Literal["feminino", "masculino", "outro", "nao_informar"]
 
 
 @app.get("/api/health")
@@ -31,7 +35,7 @@ def health() -> dict[str, str]:
 async def analyze(body: AnalyzeRequest) -> dict:
     clean = anonymize(body.text)  # segunda camada; nada é gravado em disco ou banco
     try:
-        result = await explain_exam(clean)
+        result = await explain_exam(clean, body.age, body.gender)
     except GeminiError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from None
     if not result.get("items"):
