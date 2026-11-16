@@ -35,6 +35,7 @@ export default function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const panelHeadingRef = useRef<HTMLHeadingElement>(null);
   const previousStepRef = useRef(step);
+  const activeAnalysisRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const handlePopState = () => setPage(pageFromPath());
@@ -79,11 +80,14 @@ export default function App() {
 
   async function run() {
     if (!file) return;
+    const requestController = new AbortController();
+    activeAnalysisRef.current = requestController;
     setError("");
     let slowMessageTimer: number | undefined;
     try {
       setBusy("Lendo o arquivo neste dispositivo…");
       const raw = await extractText(file);
+      if (requestController.signal.aborted) return;
       if (raw.trim().length < 20) {
         throw new Error(
           "Não conseguimos ler o texto. Tente um PDF ou uma foto mais nítida.",
@@ -99,9 +103,12 @@ export default function App() {
           ),
         12_000,
       );
-      setResult(await analyze(clean, Number(age), gender));
+      setResult(
+        await analyze(clean, Number(age), gender, requestController.signal),
+      );
       setStep(3);
     } catch (caught) {
+      if (requestController.signal.aborted) return;
       setError(
         caught instanceof Error
           ? caught.message
@@ -109,11 +116,15 @@ export default function App() {
       );
     } finally {
       if (slowMessageTimer) window.clearTimeout(slowMessageTimer);
-      setBusy("");
+      if (activeAnalysisRef.current === requestController) {
+        activeAnalysisRef.current = null;
+        setBusy("");
+      }
     }
   }
 
   function restart() {
+    setBusy("");
     setStep(1);
     setFile(null);
     setName("");
@@ -122,6 +133,15 @@ export default function App() {
     setResult(null);
     setError("");
     if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function cancelAnalysis() {
+    activeAnalysisRef.current?.abort();
+    activeAnalysisRef.current = null;
+    restart();
+    window.history.pushState({}, "", "/");
+    setPage("home");
+    window.scrollTo({ top: 0, behavior: "auto" });
   }
 
   return (
@@ -185,6 +205,7 @@ export default function App() {
           onSetDragging={setDragging}
           onRun={run}
           onRestart={restart}
+          onCancel={cancelAnalysis}
         />
       )}
 
@@ -247,6 +268,110 @@ function LandingPage({
         </div>
       </section>
 
+      <section className="mock-result" aria-labelledby="mock-result-title">
+        <div className="mock-result-heading">
+          <div>
+            <p className="section-kicker">Demonstração da tela</p>
+            <h2 id="mock-result-title">Veja como uma explicação pode aparecer</h2>
+          </div>
+          <span className="mock-label">Exemplo fictício</span>
+        </div>
+
+        <p className="mock-warning" role="note">
+          Os nomes, valores e faixas abaixo foram inventados apenas para
+          demonstrar a tela. Eles não pertencem a uma pessoa real e não servem
+          para avaliar nenhum exame.
+        </p>
+
+        <div className="mock-overview-grid">
+          <article className="mock-summary">
+            <p className="mock-card-label">Resumo geral fictício</p>
+            <h3>O que este exemplo mostra</h3>
+            <p>
+              A maior parte dos marcadores está dentro das faixas informadas.
+              Os leucócitos aparecem acima da referência do laudo e precisariam
+              ser interpretados por um profissional junto ao histórico e aos
+              sintomas da pessoa.
+            </p>
+          </article>
+
+          <article className="mock-question">
+            <p className="mock-card-label">Pergunta de exemplo</p>
+            <h3>Para levar à consulta</h3>
+            <p>
+              O que pode explicar a alteração dos leucócitos neste contexto?
+            </p>
+          </article>
+        </div>
+
+        <div className="mock-details" aria-labelledby="mock-details-title">
+          <div className="mock-details-heading">
+            <div>
+              <p className="mock-card-label">Resultado detalhado fictício</p>
+              <h3 id="mock-details-title">Marcadores do exame</h3>
+            </div>
+            <p>3 dados inventados para demonstrar o formato</p>
+          </div>
+
+          <div className="mock-items">
+            <article className="item normal">
+              <div className="item-head">
+                <h4>Glicose</h4>
+                <span className="badge">Dentro da referência</span>
+              </div>
+              <p className="value">92 mg/dL</p>
+              <p className="reference">Referência fictícia: 70 a 99 mg/dL</p>
+              <p className="item-comparison">Dentro da faixa do exemplo</p>
+              <p>
+                A glicose indica a quantidade de açúcar no sangue. Neste
+                exemplo, o valor aparece dentro da faixa apresentada.
+              </p>
+            </article>
+
+            <article className="item high">
+              <div className="item-head">
+                <h4>Leucócitos</h4>
+                <span className="badge">Acima da referência</span>
+              </div>
+              <p className="value">12.100/mm³</p>
+              <p className="reference">
+                Referência fictícia: 4.000 a 11.000/mm³
+              </p>
+              <p className="item-comparison">Acima da faixa do exemplo</p>
+              <p>
+                Leucócitos são células de defesa. Eles podem variar por
+                diferentes motivos, e este resultado isolado não determina a
+                causa da alteração.
+              </p>
+            </article>
+
+            <article className="item normal">
+              <div className="item-head">
+                <h4>Hemoglobina</h4>
+                <span className="badge">Dentro da referência</span>
+              </div>
+              <p className="value">13,8 g/dL</p>
+              <p className="reference">Referência fictícia: 12 a 16 g/dL</p>
+              <p className="item-comparison">Dentro da faixa do exemplo</p>
+              <p>
+                A hemoglobina ajuda a transportar oxigênio pelo corpo. Neste
+                exemplo, o valor aparece dentro da faixa apresentada.
+              </p>
+            </article>
+          </div>
+        </div>
+
+        <div className="mock-action">
+          <a
+            className="btn primary"
+            href="/analisar"
+            onClick={(event) => onNavigate(event, "analysis")}
+          >
+            Analisar meu próprio exame
+          </a>
+        </div>
+      </section>
+
       <section className="landing-safety" aria-labelledby="safety-title">
         <div>
           <p className="section-kicker">Apoio, não diagnóstico</p>
@@ -282,6 +407,7 @@ interface AnalysisPageProps {
   onSetDragging: (dragging: boolean) => void;
   onRun: () => Promise<void>;
   onRestart: () => void;
+  onCancel: () => void;
 }
 
 function AnalysisPage({
@@ -305,6 +431,7 @@ function AnalysisPage({
   onSetDragging,
   onRun,
   onRestart,
+  onCancel,
 }: AnalysisPageProps) {
   const [itemQuery, setItemQuery] = useState("");
   const [itemPage, setItemPage] = useState(1);
@@ -403,8 +530,8 @@ function AnalysisPage({
             </div>
 
             <div className="medical-notice" role="note">
-              <strong>Esta é uma ferramenta é educativa!</strong> <br></br>
-              Não realizadiagnósticos, não indica tratamentos e não substitui a avaliação
+              <strong>Esta ferramenta é educativa.</strong> Não realiza
+              diagnósticos, não indica tratamentos e não substitui a avaliação
               de um profissional de saúde.
             </div>
           </>
@@ -474,13 +601,22 @@ function AnalysisPage({
                 {error}
               </p>
             )}
-            <button
-              className="btn primary block"
-              disabled={!file}
-              onClick={() => onSetStep(2)}
-            >
-              Continuar com segurança
-            </button>
+            <div className="row upload-actions">
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={onCancel}
+              >
+                Cancelar e voltar ao início
+              </button>
+              <button
+                className="btn primary"
+                disabled={!file}
+                onClick={() => onSetStep(2)}
+              >
+                Continuar com segurança
+              </button>
+            </div>
           </div>
         )}
 
@@ -559,6 +695,13 @@ function AnalysisPage({
               </p>
             )}
             <div className="row">
+              <button
+                type="button"
+                className="btn quiet-danger"
+                onClick={onCancel}
+              >
+                Cancelar
+              </button>
               <button
                 type="button"
                 className="btn ghost"
@@ -709,9 +852,14 @@ function AnalysisPage({
               explicação é educativa e não representa diagnóstico, avaliação de
               gravidade ou indicação de tratamento.
             </div>
-            <button className="btn primary block" onClick={onRestart}>
-              Analisar outro exame
-            </button>
+            <div className="row result-actions">
+              <button type="button" className="btn ghost" onClick={onCancel}>
+                Voltar ao início
+              </button>
+              <button className="btn primary" onClick={onRestart}>
+                Analisar outro exame
+              </button>
+            </div>
           </div>
         )}
       </section>
