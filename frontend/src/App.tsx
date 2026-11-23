@@ -157,7 +157,8 @@ export default function App() {
           aria-label="LêExame — página inicial"
           onClick={(event) => navigate(event, "home")}
         >
-          <span aria-hidden="true">Lê</span>Exame
+          <img className="brand-logo" src="/logo.svg" alt="" />
+          {/* <span aria-hidden="true">Lê</span>Exame */}
         </a>
         {page === "home" ? (
           <nav className="topnav" aria-label="Navegação principal">
@@ -530,8 +531,13 @@ function AnalysisPage({
             </div>
 
             <div className="medical-notice" role="note">
+<<<<<<< Updated upstream
               <strong>Esta ferramenta é educativa.</strong> Não realiza
               diagnósticos, não indica tratamentos e não substitui a avaliação
+=======
+              <strong>Esta é uma ferramenta é educativa!</strong> <br></br>
+              Não realiza diagnósticos, não indica tratamentos e não substitui a avaliação
+>>>>>>> Stashed changes
               de um profissional de saúde.
             </div>
           </>

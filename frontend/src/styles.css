@@ -93,11 +93,21 @@ p {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   color: var(--ink);
   font-family: Roboto, "Roboto";
   font-size: 1.45rem;
   font-weight: 700;
   text-decoration: none;
+}
+
+.brand-logo {
+  display: block;
+  width: 8rem;
+  height: 6rem;
+  /* object-fit: contain; */
 }
 
 .brand span {
