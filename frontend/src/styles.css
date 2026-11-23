@@ -95,23 +95,45 @@ p {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  color: var(--ink);
-  font-family: Roboto, "Roboto";
-  font-size: 1.45rem;
-  font-weight: 700;
+  gap: 0.45rem;
   text-decoration: none;
 }
 
-.brand-logo {
+.brand-symbol-frame {
+  position: relative;
   display: block;
-  width: 8rem;
-  height: 6rem;
-  /* object-fit: contain; */
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: 0 0 auto;
+  overflow: hidden;
 }
 
-.brand span {
-  color: var(--accent);
+.brand-symbol {
+  position: absolute;
+  top: -1rem;
+  left: -3.25rem;
+  display: block;
+  width: 10rem;
+  max-width: none;
+  height: auto;
+}
+
+.brand-logo-frame {
+  position: relative;
+  display: block;
+  width: 10rem;
+  height: 3.5rem;
+  overflow: hidden;
+}
+
+.brand-logo {
+  position: absolute;
+  top: -9.35rem;
+  left: -6rem;
+  display: block;
+  width: 22rem;
+  max-width: none;
+  height: auto;
 }
 
 .topnav {
@@ -1103,6 +1125,28 @@ footer strong {
   .topbar {
     min-height: 4rem;
     padding-inline: 1rem;
+  }
+
+  .brand-logo-frame {
+    width: 6.75rem;
+    height: 3rem;
+  }
+
+  .brand-logo {
+    top: -6rem;
+    left: -4.125rem;
+    width: 15rem;
+  }
+
+  .brand-symbol-frame {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .brand-symbol {
+    top: -0.85rem;
+    left: -2.75rem;
+    width: 8.5rem;
   }
 
   .topnav {

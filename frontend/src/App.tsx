@@ -3,6 +3,7 @@ import type { MouseEvent, RefObject } from "react";
 import { analyze, Analysis, Status } from "./lib/api";
 import { anonymize } from "./lib/anonymize";
 import { extractText } from "./lib/extract";
+import logo from "./images/logo.png";
 
 const ACCEPTED = ["application/pdf", "image/jpeg", "image/png"];
 const MAX_MB = 10;
@@ -154,11 +155,15 @@ export default function App() {
         <a
           className="brand"
           href="/"
-          aria-label="LêExame — página inicial"
+          aria-label="LêExame, página inicial"
           onClick={(event) => navigate(event, "home")}
         >
-          <img className="brand-logo" src="/logo.svg" alt="" />
-          {/* <span aria-hidden="true">Lê</span>Exame */}
+          <span className="brand-symbol-frame" aria-hidden="true">
+            <img className="brand-symbol" src={logo} alt="" />
+          </span>
+          <span className="brand-logo-frame" aria-hidden="true">
+            <img className="brand-logo" src={logo} alt="" />
+          </span>
         </a>
         {page === "home" ? (
           <nav className="topnav" aria-label="Navegação principal">
