@@ -22,8 +22,11 @@ export async function analyze(
   anonymizedText: string,
   age: number,
   gender: string,
+  signal?: AbortSignal,
 ): Promise<Analysis> {
   const controller = new AbortController();
+  const abortFromCaller = () => controller.abort();
+  signal?.addEventListener("abort", abortFromCaller, { once: true });
   const timeout = window.setTimeout(() => controller.abort(), 65_000);
   try {
     const resp = await fetch(`${API_BASE_URL}/api/analyze`, {
@@ -50,5 +53,6 @@ export async function analyze(
     throw error;
   } finally {
     window.clearTimeout(timeout);
+    signal?.removeEventListener("abort", abortFromCaller);
   }
 }
